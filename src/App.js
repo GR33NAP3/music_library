@@ -1,32 +1,34 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Gallery from './Components/Gallery'
 import SearchBar from './Components/SearchBar'
 import AlbumView from './Components/AlbumView'
 import ArtistView from './Components/ArtistView'
 import NavButtons from './Components/NavButtons'
+import { createResource as fetchData } from './helper'
+
 
 function App() {
     const [search, setSearch] = useState('')
     const [message, setMessage] = useState('Search for Music!')
-    const [data, setData] = useState([])
+    const [data, setData] = useState(null)
 
     useEffect(() => {
-      const fetchData = async () => {
-        const API_URL = `https://itunes.apple.com/search?term=${encodeURI(search)}`
-        console.log(API_URL)
-        const response = await fetch(API_URL)
-        const data = await response.json()
-        console.log(data)
-        if (data.results.length > 0) {
-          setData(data.results)
-        } else {
-          setMessage('Not found')
-        }
+      if (search) {
+          setData(fetchData(search))
       }
-
-      if (search) fetchData()
     }, [search])
+
+    const renderGallery = () => {
+      if(data) {
+        return(
+          <Suspense fallback={<h1>Loading...</h1>} >
+            <Gallery data={data} />
+          </Suspense>
+        )
+      }
+    }
+
 
     const handleSearch = (e, term) => {
       e.preventDefault()
@@ -42,7 +44,7 @@ function App() {
                   <>
                     <SearchBar handleSearch={handleSearch} />
                     <NavButtons />
-                    <Gallery data={data} />
+                    {renderGallery()}
                   </>
                 } />
                 <Route path='/album/:id' element={<AlbumView />} />

@@ -6,6 +6,7 @@ import AlbumView from './Components/AlbumView'
 import ArtistView from './Components/ArtistView'
 import NavButtons from './Components/NavButtons'
 import { createResource as fetchData } from './helper'
+import Spinner from './Spinner'
 
 
 function App() {
@@ -22,7 +23,7 @@ function App() {
     const renderGallery = () => {
       if(data) {
         return(
-          <Suspense fallback={<h1>Loading...</h1>} >
+          <Suspense fallback={<Spinner />} >
             <Gallery data={data} />
           </Suspense>
         )
